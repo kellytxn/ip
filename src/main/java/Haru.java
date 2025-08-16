@@ -16,8 +16,10 @@ public class Haru {
 """;
 
         System.out.println("    --------------------------------------");
-        System.out.println("    Hello! I'm \n" + logo);
-        System.out.println("    What can I do for you today? \n");
+        System.out.println("    Hello! I'm");
+        System.out.println(logo);
+        System.out.println("    What can I do for you today?");
+        System.out.println();
         System.out.println("    --------------------------------------");
 
         while (true) {
@@ -27,7 +29,8 @@ public class Haru {
             System.out.println("    --------------------------------------");
 
             if (input.equalsIgnoreCase("bye")) {
-                System.out.println("    Bye. Hope to see you again soon! \n");
+                System.out.println("    Bye. Hope to see you again soon!");
+                System.out.println();
                 System.out.println("    --------------------------------------");
                 break;
             } else if (input.equalsIgnoreCase("list")) {
