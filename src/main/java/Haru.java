@@ -50,7 +50,7 @@ public class Haru {
                     String[] parts = input.split(" ");
                     if (parts.length > 1) {
                         int index = Integer.parseInt(parts[1]);
-                        if (index >= tasks.size()) {
+                        if (index > tasks.size()) {
                             throw new HaruException("Please enter a valid task number");
                         }
                         tasks.get(index - 1).mark();
@@ -65,7 +65,7 @@ public class Haru {
                     String[] parts = input.split(" ");
                     if (parts.length > 1) {
                         int index = Integer.parseInt(parts[1]);
-                        if (index >= tasks.size()) {
+                        if (index > tasks.size()) {
                             throw new HaruException("Please enter a valid task number");
                         }
                         tasks.get(index - 1).unmark();
@@ -126,7 +126,24 @@ public class Haru {
                     System.out.println("    Now you have " + tasks.size() + " tasks in the list.");
                     System.out.println();
                     System.out.println("    --------------------------------------");
-                } else {
+                } else if (input.toLowerCase().startsWith("delete")) {
+                    String[] parts = input.split(" ");
+                    if (parts.length > 1) {
+                        int index = Integer.parseInt(parts[1]);
+                        if (index > tasks.size()) {
+                            throw new HaruException("Please enter a valid task number");
+                        }
+                        Task task = tasks.remove(index - 1);
+                        System.out.println("    Noted. I've removed this task");
+                        System.out.println("        " + task);
+                        System.out.println("    Now you have " + tasks.size() + " in the list.");
+                    } else {
+                        throw new HaruException("Please specify which task number you want to delete");
+                    }
+                    System.out.println();
+                    System.out.println("    --------------------------------------");
+                }
+                else {
                     throw new HaruException("Please specify the type of your task");
 
                 }
