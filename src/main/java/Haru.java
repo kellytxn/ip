@@ -81,7 +81,7 @@ public class Haru {
                     if (name.isEmpty()) {
                         throw new HaruException("Please specify the name of the task");
                     }
-                    Task task = new ToDo(name);
+                    Task task = new ToDo(name, Type.TODO);
                     tasks.add(task);
                     System.out.println("    Got it. I've added this task:");
                     System.out.println("        " + task);
@@ -98,7 +98,7 @@ public class Haru {
                     if (end.isEmpty()) {
                         throw new HaruException("Please specify the end date/time of the task");
                     }
-                    Task task = new Deadline(name, end);
+                    Task task = new Deadline(name, end, Type.DEADLINE);
                     tasks.add(task);
                     System.out.println("    Got it. I've added this task:");
                     System.out.println("        " + task);
@@ -119,7 +119,7 @@ public class Haru {
                     if (end.isEmpty()) {
                         throw new HaruException("Please specify the end date/time of the task");
                     }
-                    Task task = new Event(name, end, start);
+                    Task task = new Event(name, end, start, Type.EVENT);
                     tasks.add(task);
                     System.out.println("    Got it. I've added this task:");
                     System.out.println("        " + task);
