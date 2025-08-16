@@ -1,5 +1,9 @@
+import java.util.Scanner;
+
 public class Haru {
     public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
+        String input;
         String logo = """
    ___ ___
  /   |   \\_____ _______ __ __
@@ -9,12 +13,26 @@ public class Haru {
        \\/      \\/
 """;
 
+        System.out.println("    --------------------------------------");
+        System.out.println("    Hello! I'm \n" + logo);
+        System.out.println("    What can I do for you today? \n");
+        System.out.println("    --------------------------------------");
 
-        System.out.println("--------------------------------------");
-        System.out.println("Hello! I'm \n" + logo);
-        System.out.println("What can I do for you today? \n");
-        System.out.println("--------------------------------------");
-        System.out.println("Bye. Hope to see you again soon! \n");
-        System.out.println("--------------------------------------");
+        while (true) {
+            System.out.println();
+            input = sc.nextLine().trim();
+            System.out.println();
+            System.out.println("    --------------------------------------");
+
+            if (input.equalsIgnoreCase("bye")) {
+                System.out.println("    Bye. Hope to see you again soon! \n");
+                System.out.println("    --------------------------------------");
+                break;
+            } else {
+                System.out.println("    " + input);
+                System.out.println("    --------------------------------------");
+            }
+        }
+        sc.close();
     }
 }
