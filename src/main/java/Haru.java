@@ -72,6 +72,38 @@ public class Haru {
                 }
                 System.out.println();
                 System.out.println("    --------------------------------------");
+            } else if (input.toLowerCase().startsWith("todo")) {
+                String name = input.substring(5);
+                Task task = new ToDo(name);
+                tasks.add(task);
+                System.out.println("    Got it. I've added this task:");
+                System.out.println("        " + task);
+                System.out.println("    Now you have " + tasks.size() + " tasks in the list.");
+                System.out.println();
+                System.out.println("    --------------------------------------");
+            } else if (input.toLowerCase().startsWith("deadline")) {
+                String[] parts = input.substring(9).split("/by");
+                String name = parts[0].trim();
+                String end = parts.length > 1 ? parts[1].trim() : "";
+                Task task = new Deadline(name, end);
+                tasks.add(task);
+                System.out.println("    Got it. I've added this task:");
+                System.out.println("        " + task);
+                System.out.println("    Now you have " + tasks.size() + " tasks in the list.");
+                System.out.println();
+                System.out.println("    --------------------------------------");
+            } else if (input.toLowerCase().startsWith("event")) {
+                String[] parts = input.substring(6).split("/from|/to");
+                String name = parts[0].trim();
+                String start = parts.length > 1 ? parts[1].trim() : "";
+                String end = parts.length > 2 ? parts[2].trim() : "";
+                Task task = new Event(name, end, start);
+                tasks.add(task);
+                System.out.println("    Got it. I've added this task:");
+                System.out.println("        " + task);
+                System.out.println("    Now you have " + tasks.size() + " tasks in the list.");
+                System.out.println();
+                System.out.println("    --------------------------------------");
             } else {
                 tasks.add(new Task(input));
                 System.out.println("    added: " + input);

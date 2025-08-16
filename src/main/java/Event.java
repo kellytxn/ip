@@ -1,0 +1,15 @@
+public class Event extends Task{
+    protected String start;
+    protected String end;
+
+    public Event(String name, String end, String start) {
+        super(name);
+        this.end = end;
+        this.start = start;
+    }
+
+    @Override
+    public String toString() {
+        return "[E]" + super.toString() + " (from: " + this.end +  " to: " + this.start + ")";
+    }
+}
