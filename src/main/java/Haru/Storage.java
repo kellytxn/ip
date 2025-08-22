@@ -12,8 +12,12 @@ public class Storage {
         try {
             File file = filePath.toFile();
             File dir = file.getParentFile();
-            if (!dir.exists()) dir.mkdirs();
-            if (!file.exists()) file.createNewFile();
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+            if (!file.exists()) {
+                file.createNewFile();
+            }
         } catch (IOException e) {
             System.out.println("Error initializing storage: " + e.getMessage());
         }
