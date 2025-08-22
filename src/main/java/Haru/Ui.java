@@ -1,3 +1,5 @@
+package Haru;
+
 import java.util.Scanner;
 
 public class Ui {
@@ -16,6 +18,8 @@ public class Ui {
     }
 
     public void showGoodbye() {
+        System.out.println();
+        System.out.println("    --------------------------------------");
         System.out.println("    Bye. Hope to see you again soon!");
         System.out.println("    --------------------------------------");
     }

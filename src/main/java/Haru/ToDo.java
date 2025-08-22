@@ -1,3 +1,5 @@
+package Haru;
+
 public class ToDo extends Task {
     public ToDo(String name, Type type) {
         super(name, type);

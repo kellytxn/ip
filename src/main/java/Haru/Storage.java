@@ -1,3 +1,5 @@
+package Haru;
+
 import java.io.*;
 import java.nio.file.*;
 import java.util.*;
@@ -22,7 +24,7 @@ public class Storage {
         try (Scanner scanner = new Scanner(filePath.toFile())) {
             while (scanner.hasNextLine()) {
                 String line = scanner.nextLine();
-                Task task = Task.fromFileString(line); // implement in Task class
+                Task task = Task.fromFileString(line); // implement in Haru.Task class
                 tasks.add(task);
             }
         } catch (IOException e) {

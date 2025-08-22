@@ -1,3 +1,5 @@
+package Haru;
+
 public class Task {
     protected boolean isDone;
     protected final String name;
