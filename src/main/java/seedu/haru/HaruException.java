@@ -1,4 +1,4 @@
-package Haru;
+package seedu.haru;
 
 public class HaruException extends Exception {
     public HaruException(String message) {

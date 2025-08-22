@@ -1,4 +1,4 @@
-package Haru;
+package seedu.haru;
 
 import java.util.*;
 

@@ -1,4 +1,4 @@
-package Haru;
+package seedu.haru;
 
 public enum Type {
     TODO,

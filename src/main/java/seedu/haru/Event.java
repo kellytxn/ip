@@ -1,4 +1,4 @@
-package Haru;
+package seedu.haru;
 
 public class Event extends Task {
     protected String start;

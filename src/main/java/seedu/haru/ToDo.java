@@ -1,4 +1,4 @@
-package Haru;
+package seedu.haru;
 
 public class ToDo extends Task {
     public ToDo(String name, Type type) {
