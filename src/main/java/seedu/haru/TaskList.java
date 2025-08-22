@@ -77,4 +77,14 @@ public class TaskList {
     public int size() {
         return tasks.size();
     }
+
+    public TaskList find(String args) {
+        List<Task> filtered = new ArrayList<>();
+        for (Task task : tasks) {
+            if (task.name.toLowerCase().contains(args.toLowerCase())) {
+                filtered.add(task);
+            }
+        }
+        return new TaskList(filtered);
+    }
 }
