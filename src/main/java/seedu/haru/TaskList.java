@@ -78,6 +78,13 @@ public class TaskList {
         return tasks.size();
     }
 
+    /**
+     * Returns a new TaskList containing tasks whose names contain the given search string.
+     *
+     * @param args the string to search for in tasks' names
+     *
+     * @return a TaskList of tasks that match the search string
+     */
     public TaskList find(String args) {
         List<Task> filtered = new ArrayList<>();
         for (Task task : tasks) {
