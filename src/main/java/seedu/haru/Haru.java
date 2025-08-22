@@ -99,6 +99,15 @@ public class Haru {
 
                 case "find":
                     if (arg.isEmpty()) throw new HaruException("Please specify what you are trying to find");
+                    TaskList result = taskList.find(arg);
+                    if (result.size() == 0) ui.showMessage("    No task found :(");
+                    else {
+                        StringBuilder sb = new StringBuilder("    Here are the matching tasks in your list:\n");
+                        for (int i = 0; i < taskList.size(); i++) {
+                            sb.append("    ").append(i + 1).append(". ").append(taskList.getTasks().get(i)).append("\n");
+                        }
+                        ui.showMessage(sb.toString());
+                    }
                     break;
 
                 default:
