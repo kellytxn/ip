@@ -1,5 +1,6 @@
 import java.util.ArrayList;
 import java.util.Scanner;
+import java.time.format.DateTimeParseException;
 
 public class Haru {
     public static void main(String[] args) {
@@ -100,9 +101,14 @@ public class Haru {
                     }
                     String end = parts.length > 1 ? parts[1].trim() : "";
                     if (end.isEmpty()) {
-                        throw new HaruException("Please specify the end date/time of the task");
+                        throw new HaruException("Please specify the end date in yyyy-mm-dd format");
                     }
-                    Task task = new Deadline(name, end, Type.DEADLINE);
+                    Task task;
+                    try {
+                        task = new Deadline(name, end, Type.DEADLINE);
+                    } catch (DateTimeParseException e) {
+                        throw new HaruException("Invalid date format! Use yyyy-mm-dd, e.g., 2019-12-02");
+                    }
                     tasks.add(task);
                     storage.saveTasks(tasks);
                     System.out.println("    Got it. I've added this task:");
