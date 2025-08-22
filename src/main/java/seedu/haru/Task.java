@@ -2,8 +2,8 @@ package seedu.haru;
 
 public class Task {
     protected boolean isDone;
-    protected final String name;
-    protected final Type type;
+    protected String name;
+    protected Type type;
 
     public Task(String name, Type type) {
         this.name = name;
