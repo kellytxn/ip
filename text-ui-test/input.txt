@@ -1,5 +1,5 @@
 todo st1131
-deadline cs2100 quiz /by tuesday
+deadline cs2100 quiz /by 2025-10-26
 event cs2101 meeting /from 2pm /to 4pm
 list
 mark 1
