@@ -94,6 +94,10 @@ public class Haru {
                         ui.showMessage("    Noted. I've removed this task:\n        " + removed);
                         break;
 
+                    case "find":
+                        if (arg.isEmpty()) throw new HaruException("Please specify what you are trying to find");
+                        break;
+
                     default:
                         throw new HaruException("Please specify the type of your task");
                 }
