@@ -3,6 +3,10 @@ package seedu.haru;
 import java.util.ArrayList;
 import java.time.format.DateTimeParseException;
 
+/**
+ * The main class of the Haru Chatbot application.
+ * Handles the main program loop, user input, and command execution.
+ */
 public class Haru {
     public static void main(String[] args) {
         String logo = """
