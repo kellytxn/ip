@@ -6,8 +6,8 @@ package seedu.haru;
  */
 public class Task {
     protected boolean isDone;
-    protected final String name;
-    protected final Type type;
+    protected String name;
+    protected Type type;
 
     /**
      * Creates a new Task with the given description and type.
