@@ -5,7 +5,8 @@ public class Haru {
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
         String input;
-        ArrayList<Task> tasks = new ArrayList<>();
+        Storage storage = new Storage("./data/duke.txt");
+        ArrayList<Task> tasks = new ArrayList<>(storage.loadTasks());
         String logo = """
    ___ ___
  /   |   \\_____ _______ __ __
@@ -54,6 +55,7 @@ public class Haru {
                             throw new HaruException("Please enter a valid task number");
                         }
                         tasks.get(index - 1).mark();
+                        storage.saveTasks(tasks);
                         System.out.println("    Nice! I've marked this task as done:");
                         System.out.println("        " + tasks.get(index - 1).toString());
                     } else {
@@ -69,6 +71,7 @@ public class Haru {
                             throw new HaruException("Please enter a valid task number");
                         }
                         tasks.get(index - 1).unmark();
+                        storage.saveTasks(tasks);
                         System.out.println("    OK, I've unmarked this task as not done yet:");
                         System.out.println("        " + tasks.get(index - 1).toString());
                     } else {
@@ -83,6 +86,7 @@ public class Haru {
                     }
                     Task task = new ToDo(name, Type.TODO);
                     tasks.add(task);
+                    storage.saveTasks(tasks);
                     System.out.println("    Got it. I've added this task:");
                     System.out.println("        " + task);
                     System.out.println("    Now you have " + tasks.size() + " tasks in the list.");
@@ -100,6 +104,7 @@ public class Haru {
                     }
                     Task task = new Deadline(name, end, Type.DEADLINE);
                     tasks.add(task);
+                    storage.saveTasks(tasks);
                     System.out.println("    Got it. I've added this task:");
                     System.out.println("        " + task);
                     System.out.println("    Now you have " + tasks.size() + " tasks in the list.");
@@ -121,6 +126,7 @@ public class Haru {
                     }
                     Task task = new Event(name, end, start, Type.EVENT);
                     tasks.add(task);
+                    storage.saveTasks(tasks);
                     System.out.println("    Got it. I've added this task:");
                     System.out.println("        " + task);
                     System.out.println("    Now you have " + tasks.size() + " tasks in the list.");
@@ -134,6 +140,7 @@ public class Haru {
                             throw new HaruException("Please enter a valid task number");
                         }
                         Task task = tasks.remove(index - 1);
+                        storage.saveTasks(tasks);
                         System.out.println("    Noted. I've removed this task");
                         System.out.println("        " + task);
                         System.out.println("    Now you have " + tasks.size() + " in the list.");
