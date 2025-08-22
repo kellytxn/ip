@@ -4,9 +4,18 @@ import java.io.*;
 import java.nio.file.*;
 import java.util.*;
 
+/**
+ * Handles loading and saving of Task objects to a file.
+ */
 public class Storage {
     private Path filePath;
 
+    /**
+     * Constructs a Storage object with the given file path.
+     * Creates the parent directory and file if they do not exist.
+     *
+     * @param filePathStr the path of the file to store tasks in
+     */
     public Storage(String filePathStr) {
         this.filePath = Paths.get(filePathStr);
         try {
@@ -23,6 +32,12 @@ public class Storage {
         }
     }
 
+    /**
+     * Loads tasks from the storage file into memory.
+     * Each line in the file is converted into a Task.
+     *
+     * @return a list of tasks read from the file; returns an empty list if an error occurs
+     */
     public List<Task> loadTasks() {
         List<Task> tasks = new ArrayList<>();
         try (Scanner scanner = new Scanner(filePath.toFile())) {
@@ -37,6 +52,12 @@ public class Storage {
         return tasks;
     }
 
+    /**
+     * Saves the given list of tasks to the storage file.
+     * Each task is written in the format produced by Task.toFileString().
+     *
+     * @param tasks the list of tasks to save
+     */
     public void saveTasks(List<Task> tasks) {
         try (FileWriter writer = new FileWriter(filePath.toFile())) {
             for (Task task : tasks) {
