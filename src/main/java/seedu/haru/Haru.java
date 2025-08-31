@@ -8,7 +8,7 @@ import java.time.format.DateTimeParseException;
  * Handles the main program loop, user input, and command execution.
  */
 public class Haru {
-    public static void main(String[] args) {
+    public static void main(String... args) {
         String logo = """
                    ___ ___
                  /   |   \\_____ _______ __ __
