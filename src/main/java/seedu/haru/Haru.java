@@ -61,7 +61,7 @@ public class Haru {
                     try {
                         deadlineTask = new Deadline(deadlineParts[0], deadlineParts[1], Type.DEADLINE);
                     } catch (DateTimeParseException e) {
-                        throw new HaruException("    Invalid date format! Use yyyy-MM-dd, e.g., 2019-12-02");
+                        throw new HaruException("    Invalid date format! Use yyyy-mm-dd, e.g., 2019-12-02");
                     }
                     taskList.add(deadlineTask);
                     storage.saveTasks(taskList.getTasks());
@@ -119,5 +119,102 @@ public class Haru {
             }
         }
         ui.close();
+    }
+
+    /**
+     * Generates a response for the user's chat message.
+     */
+    public String getResponse(String input) {
+        Storage storage = new Storage("./data/duke.txt");
+        TaskList taskList = new TaskList(new ArrayList<>(storage.loadTasks()));
+        try {
+            if (input.equalsIgnoreCase("bye")) {
+                return "Goodbye! Hope to see you again soon.";
+            }
+
+            String command = Parser.getCommand(input);
+            String arg = Parser.getArguments(input);
+
+            switch (command) {
+            case "list":
+                if (taskList.size() == 0) {
+                    return "No task found :(";
+                } else {
+                    StringBuilder sb = new StringBuilder("Here are the tasks in your list:\n");
+                    for (int i = 0; i < taskList.size(); i++) {
+                        sb.append(i + 1).append(". ").append(taskList.getTasks().get(i)).append("\n");
+                    }
+                    return sb.toString();
+                }
+
+            case "todo":
+                if (arg.isEmpty()) throw new HaruException("Please specify the name of the task");
+                Task todo = new ToDo(arg, Type.TODO);
+                taskList.add(todo);
+                storage.saveTasks(taskList.getTasks());
+                return "Got it. I've added this task:\n  " + todo
+                        + "\nNow you have " + taskList.size() + " tasks in the list.";
+
+            case "deadline":
+                String[] deadlineParts = Parser.parseDeadline(arg);
+                Task deadlineTask;
+                try {
+                    deadlineTask = new Deadline(deadlineParts[0], deadlineParts[1], Type.DEADLINE);
+                } catch (DateTimeParseException e) {
+                    throw new HaruException("Invalid date format! Use yyyy-mm-dd, e.g., 2019-12-02");
+                }
+                taskList.add(deadlineTask);
+                storage.saveTasks(taskList.getTasks());
+                return "Got it. I've added this task:\n  " + deadlineTask
+                        + "\nNow you have " + taskList.size() + " tasks in the list.";
+
+            case "event":
+                String[] eventParts = Parser.parseEvent(arg);
+                Task eventTask = new Event(eventParts[0], eventParts[2], eventParts[1], Type.EVENT);
+                taskList.add(eventTask);
+                storage.saveTasks(taskList.getTasks());
+                return "Got it. I've added this task:\n  " + eventTask
+                        + "\nNow you have " + taskList.size() + " tasks in the list.";
+
+            case "mark":
+                int markIndex = Integer.parseInt(arg) - 1;
+                taskList.mark(markIndex);
+                storage.saveTasks(taskList.getTasks());
+                return "Nice! I've marked this task as done:\n  "
+                        + taskList.getTasks().get(markIndex);
+
+            case "unmark":
+                int unmarkIndex = Integer.parseInt(arg) - 1;
+                taskList.unmark(unmarkIndex);
+                storage.saveTasks(taskList.getTasks());
+                return "OK, I've unmarked this task as not done yet:\n  "
+                        + taskList.getTasks().get(unmarkIndex);
+
+            case "delete":
+                int delIndex = Integer.parseInt(arg) - 1;
+                Task removed = taskList.remove(delIndex);
+                storage.saveTasks(taskList.getTasks());
+                return "Noted. I've removed this task:\n  " + removed;
+
+            case "find":
+                if (arg.isEmpty()) throw new HaruException("Please specify what you are trying to find");
+                TaskList result = taskList.find(arg);
+                if (result.size() == 0) {
+                    return "No task found :(";
+                } else {
+                    StringBuilder sb = new StringBuilder("Here are the matching tasks in your list:\n");
+                    for (int i = 0; i < result.size(); i++) {
+                        sb.append(i + 1).append(". ").append(result.getTasks().get(i)).append("\n");
+                    }
+                    return sb.toString();
+                }
+
+            default:
+                throw new HaruException("Please specify the type of your task");
+            }
+
+        } catch (HaruException e) {
+            return e.getMessage();
+        }
     }
 }
