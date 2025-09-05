@@ -64,6 +64,29 @@ public class Haru {
     }
 
     /**
+     * Normalizes a command by mapping its shortcut (first letter) to the full command.
+     *
+     * @param command the user input command
+     * @return the normalized command
+     */
+    private String normalizeCommand(String command) {
+        command = command.toLowerCase().trim();
+
+        return switch (command) {
+            case "t" -> "todo";
+            case "d" -> "deadline";
+            case "e" -> "event";
+            case "l" -> "list";
+            case "m" -> "mark";
+            case "u" -> "unmark";
+            case "del" -> "delete";
+            case "f" -> "find";
+            default -> command;
+        };
+    }
+
+
+    /**
      * Processes a user command by parsing it and dispatching it
      * to the appropriate command handler.
      *
@@ -71,7 +94,7 @@ public class Haru {
      * @throws HaruException if the command is invalid
      */
     private void processCommand(String input) throws HaruException {
-        String command = Parser.getCommand(input);
+        String command = normalizeCommand(Parser.getCommand(input));
         String arg = Parser.getArguments(input);
 
         switch (command) {
@@ -335,7 +358,8 @@ public class Haru {
      */
     private String processResponseCommand(String command, String arg,
                                           TaskList taskList, Storage storage) throws HaruException {
-        return switch (command) {
+        String instruction = normalizeCommand(command);
+        return switch (instruction) {
             case "list" -> handleListResponse(taskList);
             case "todo" -> handleTodoResponse(arg, taskList, storage);
             case "deadline" -> handleDeadlineResponse(arg, taskList, storage);

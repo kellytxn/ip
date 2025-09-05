@@ -31,29 +31,46 @@ public class Parser {
      *
      * @param args the argument string
      * @return a string array: [name, end]
-     * @throws HaruException if the format is invalid or due date is missing
+     * @throws HaruException if the format is invalid or fields are missing
      */
     public static String[] parseDeadline(String args) throws HaruException {
-        String[] parts = args.split("/by");
-        if (parts.length < 2 || parts[1].trim().isEmpty()) {
+        String[] parts = args.split("/by", 2); // limit to 2 parts
+        String name = parts.length > 0 ? parts[0].trim() : "";
+        String endDate = parts.length > 1 ? parts[1].trim() : "";
+
+        if (name.isEmpty() && endDate.isEmpty()) {
+            throw new HaruException("Please specify both the task name and the end date in yyyy-mm-dd format");
+        } else if (endDate.isEmpty()) {
             throw new HaruException("Please specify the end date in yyyy-mm-dd format");
         }
-        return new String[]{parts[0].trim(), parts[1].trim()};
+
+        return new String[]{name, endDate};
     }
+
 
     /**
      * Parses the arguments for an Event command.
      *
      * @param args the argument string
-     * @return a string array: [description, end, start]
-     * @throws HaruException if the format is invalid or start/end times are missing
+     * @return a string array: [description, start, end]
+     * @throws HaruException if the format is invalid or fields are missing
      */
     public static String[] parseEvent(String args) throws HaruException {
-        String[] parts = args.split("/from|/to");
-        if (parts.length < 3 || parts[1].trim().isEmpty() || parts[2].trim().isEmpty()) {
-            throw new HaruException("Please specify start and end date/time for the event");
+        // Split using regex to match /from or /to exactly once
+        String[] parts = args.split("/from|/to", 3);
+        String name = parts.length > 0 ? parts[0].trim() : "";
+        String start = parts.length > 1 ? parts[1].trim() : "";
+        String end = parts.length > 2 ? parts[2].trim() : "";
+
+        if (name.isEmpty() && start.isEmpty() && end.isEmpty()) {
+            throw new HaruException("Please specify the name, start and end date/time for the event");
+        } else if (start.isEmpty()) {
+            throw new HaruException("Please specify the start and end date/time of the event");
+        } else if (end.isEmpty()) {
+            throw new HaruException("Please specify the end date/time of the event");
         }
-        return new String[]{parts[0].trim(), parts[1].trim(), parts[2].trim()};
+
+        return new String[]{name, end, start};
     }
 }
 
