@@ -22,7 +22,9 @@ public class Deadline extends Task {
      */
     public Deadline(String name, String end, Type type) {
         super(name, type);
+        assert end != null : "End date string must not be null";
         this.end = LocalDate.parse(end, INPUT_FORMAT);
+
     }
 
     /**

@@ -16,6 +16,9 @@ public class Task {
      * @param type type of the task
      */
     public Task(String name, Type type) {
+        assert name != null && !name.isBlank() : "Deadline name must not be null or blank";
+        assert type != null : "Type must not be null";
+
         this.name = name;
         this.isDone = false;
         this.type = type;
