@@ -21,17 +21,36 @@ public class Haru {
     private final Storage storage;
     private final TaskList taskList;
 
+    /**
+     * Constructs a new Haru chatbot instance.
+     * <p>
+     * Initializes the user interface, storage, and task list by loading
+     * existing tasks from the storage file.
+     */
     public Haru() {
         this.ui = new Ui();
         this.storage = new Storage("./data/haru.txt");
         this.taskList = new TaskList(new ArrayList<>(storage.loadTasks()));
     }
 
+    /**
+     * The entry point of the Haru application.
+     * <p>
+     * Creates a new Haru instance and starts its interactive command loop.
+     *
+     * @param args command-line arguments (not used)
+     */
     public static void main(String... args) {
         Haru haru = new Haru();
         haru.run();
     }
 
+    /**
+     * Runs the main interactive loop of the Haru chatbot.
+     * <p>
+     * Continuously reads user input, processes commands, and displays responses
+     * until an exit command is received. Errors are caught and displayed to the user.
+     */
     private void run() {
         ui.showWelcome(LOGO);
 
@@ -127,6 +146,12 @@ public class Haru {
         }
     }
 
+    /**
+     * Displays all tasks in the task list to the user.
+     * <p>
+     * If the task list is empty, a message indicating no tasks are found is shown.
+     * Otherwise, a numbered list of tasks is displayed.
+     */
     private void handleListCommand() {
         if (taskList.size() == 0) {
             ui.showMessage("    No task found :(");
@@ -136,6 +161,13 @@ public class Haru {
         }
     }
 
+    /**
+     * Builds a formatted string representing all tasks in the task list.
+     * <p>
+     * Each task is numbered starting from 1, and each line is indented for display.
+     *
+     * @return a string containing all tasks in a readable format
+     */
     private String buildTaskListString() {
         StringBuilder sb = new StringBuilder("    Here are the tasks in your list:\n");
         for (int i = 0; i < taskList.size(); i++) {
@@ -261,6 +293,14 @@ public class Haru {
         }
     }
 
+    /**
+     * Builds a formatted string representing the tasks found in a search result.
+     * <p>
+     * Each task is numbered starting from 1, and each line is indented for display.
+     *
+     * @param result the TaskList containing the matching tasks
+     * @return a string containing the matching tasks in a readable, numbered format
+     */
     private String buildFoundTasksString(TaskList result) {
         StringBuilder sb = new StringBuilder("    Here are the matching tasks in your list:\n");
         for (int i = 0; i < result.size(); i++) {
@@ -427,6 +467,13 @@ public class Haru {
                 + "\nNow you have " + taskList.size() + " tasks in the list.";
     }
 
+    /**
+     * Creates a Deadline task from description and date strings.
+     *
+     * @param deadlineParts array with description at index 0 and date at index 1
+     * @return the created Deadline task
+     * @throws HaruException if the date format is invalid
+     */
     private Task createDeadlineTaskForResponse(String[] deadlineParts) throws HaruException {
         try {
             return new Deadline(deadlineParts[0], deadlineParts[1], Type.DEADLINE);

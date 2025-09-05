@@ -61,6 +61,13 @@ public class Task {
         return (isDone ? 1 : 0) + " | " + name;
     }
 
+    /**
+     * Creates a Task object from a string read from a file.
+     *
+     * @param line a string in the format "Type | isDone | description | [extra fields]"
+     *             where Type is "T" (ToDo), "D" (Deadline), or "E" (Event)
+     * @return the corresponding Task, or null if the type is invalid
+     */
     public static Task fromFileString(String line) {
         String[] parts = line.split(" \\| ");
         String type = parts[0];

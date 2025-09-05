@@ -11,6 +11,12 @@ import javafx.stage.Stage;
 import javafx.scene.image.Image;
 import javafx.scene.layout.Region;
 
+/**
+ * The main JavaFX application class for Haru, a chatbot interface.
+ * <p>
+ * This class sets up the GUI, including the scrollable dialog area, user input field,
+ * and send button. It handles user input and displays responses from Haru.
+ */
 public class Main extends Application {
 
     private ScrollPane scrollPane;
@@ -24,6 +30,11 @@ public class Main extends Application {
     private Haru haru = new Haru();
 
 
+    /**
+     * Starts the JavaFX application by setting up the GUI components and layout.
+     *
+     * @param stage the primary stage for this application
+     */
     @Override
     public void start(Stage stage) {
         //Setting up required components
@@ -96,6 +107,10 @@ public class Main extends Application {
         );
     }
 
+    /**
+     * Handles the user's input by sending it to Haru and displaying both
+     * the user's message and Haru's response in the dialog container.
+     */
     private void handleUserInput() {
         String userText = userInput.getText();
         String dukeText = haru.getResponse(userInput.getText());
