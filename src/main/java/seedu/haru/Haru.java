@@ -123,6 +123,9 @@ public class Haru {
 
     /**
      * Generates a response for the user's chat message.
+     *
+     * @param input the input string provided by the user
+     * @return the processed result as a string
      */
     public String getResponse(String input) {
         Storage storage = new Storage("./data/duke.txt");
