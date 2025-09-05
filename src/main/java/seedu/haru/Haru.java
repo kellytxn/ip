@@ -8,117 +8,294 @@ import java.time.format.DateTimeParseException;
  * Handles the main program loop, user input, and command execution.
  */
 public class Haru {
+    private static final String LOGO = """
+               ___ ___
+             /   |   \\_____ _______ __ __
+            /    ~    \\__  \\\\_  __ \\  |  \\
+            \\    Y    // __ \\|  | \\/  |  /
+             \\___|_  /(____  /__|  |____/
+                   \\/      \\/
+            """;
+
+    private final Ui ui;
+    private final Storage storage;
+    private final TaskList taskList;
+
+    public Haru() {
+        this.ui = new Ui();
+        this.storage = new Storage("./data/haru.txt");
+        this.taskList = new TaskList(new ArrayList<>(storage.loadTasks()));
+    }
+
     public static void main(String... args) {
-        String logo = """
-                   ___ ___
-                 /   |   \\_____ _______ __ __
-                /    ~    \\__  \\\\_  __ \\  |  \\
-                \\    Y    // __ \\|  | \\/  |  /
-                 \\___|_  /(____  /__|  |____/
-                       \\/      \\/
-                """;
+        Haru haru = new Haru();
+        haru.run();
+    }
 
-        Ui ui = new Ui();
-        Storage storage = new Storage("./data/duke.txt");
-        TaskList taskList = new TaskList(new ArrayList<>(storage.loadTasks()));
-
-        ui.showWelcome(logo);
+    private void run() {
+        ui.showWelcome(LOGO);
 
         while (true) {
             try {
                 String input = ui.readCommand();
-                if (input.equalsIgnoreCase("bye")) {
-                    ui.showGoodbye();
+                if (shouldExit(input)) {
                     break;
                 }
-
-                String command = Parser.getCommand(input);
-                String arg = Parser.getArguments(input);
-
-                switch (command) {
-                case "list":
-                    if (taskList.size() == 0) ui.showMessage("    No task found :(");
-                    else {
-                        StringBuilder sb = new StringBuilder("    Here are the tasks in your list:\n");
-                        for (int i = 0; i < taskList.size(); i++) {
-                            sb.append("    ").append(i + 1).append(". ").append(taskList.getTasks().get(i)).append("\n");
-                        }
-                        ui.showMessage(sb.toString());
-                    }
-                    break;
-
-                case "todo":
-                    if (arg.isEmpty()) throw new HaruException("Please specify the name of the task");
-                    Task todo = new ToDo(arg, Type.TODO);
-                    taskList.add(todo);
-                    storage.saveTasks(taskList.getTasks());
-                    ui.showMessage("    Got it. I've added this task:\n        " + todo + "\n    Now you have " + taskList.size() + " tasks in the list.");
-                    break;
-
-                case "deadline":
-                    String[] deadlineParts = Parser.parseDeadline(arg);
-                    Task deadlineTask;
-                    try {
-                        deadlineTask = new Deadline(deadlineParts[0], deadlineParts[1], Type.DEADLINE);
-                    } catch (DateTimeParseException e) {
-                        throw new HaruException("    Invalid date format! Use yyyy-mm-dd, e.g., 2019-12-02");
-                    }
-                    taskList.add(deadlineTask);
-                    storage.saveTasks(taskList.getTasks());
-                    ui.showMessage("    Got it. I've added this task:\n        " + deadlineTask + "\n    Now you have " + taskList.size() + " tasks in the list.");
-                    break;
-
-                case "event":
-                    String[] eventParts = Parser.parseEvent(arg);
-                    Task eventTask = new Event(eventParts[0], eventParts[2], eventParts[1], Type.EVENT);
-                    taskList.add(eventTask);
-                    storage.saveTasks(taskList.getTasks());
-                    ui.showMessage("    Got it. I've added this task:\n        " + eventTask + "\n    Now you have " + taskList.size() + " tasks in the list.");
-                    break;
-
-                case "mark":
-                    int markIndex = Integer.parseInt(arg) - 1;
-                    taskList.mark(markIndex);
-                    storage.saveTasks(taskList.getTasks());
-                    ui.showMessage("    Nice! I've marked this task as done:\n        " + taskList.getTasks().get(markIndex));
-                    break;
-
-                case "unmark":
-                    int unmarkIndex = Integer.parseInt(arg) - 1;
-                    taskList.unmark(unmarkIndex);
-                    storage.saveTasks(taskList.getTasks());
-                    ui.showMessage("    OK, I've unmarked this task as not done yet:\n        " + taskList.getTasks().get(unmarkIndex));
-                    break;
-
-                case "delete":
-                    int delIndex = Integer.parseInt(arg) - 1;
-                    Task removed = taskList.remove(delIndex);
-                    storage.saveTasks(taskList.getTasks());
-                    ui.showMessage("    Noted. I've removed this task:\n        " + removed);
-                    break;
-
-                case "find":
-                    if (arg.isEmpty()) throw new HaruException("Please specify what you are trying to find");
-                    TaskList result = taskList.find(arg);
-                    if (result.size() == 0) ui.showMessage("    No task found :(");
-                    else {
-                        StringBuilder sb = new StringBuilder("    Here are the matching tasks in your list:\n");
-                        for (int i = 0; i < taskList.size(); i++) {
-                            sb.append("    ").append(i + 1).append(". ").append(taskList.getTasks().get(i)).append("\n");
-                        }
-                        ui.showMessage(sb.toString());
-                    }
-                    break;
-
-                default:
-                    throw new HaruException("Please specify the type of your task");
-                }
-
+                processCommand(input);
             } catch (HaruException e) {
                 ui.showError(e.getMessage());
             }
         }
         ui.close();
+    }
+
+    /**
+     * Checks if the input command is "bye" to exit the program.
+     *
+     * @param input the user input
+     * @return true if the user wants to exit, false otherwise
+     */
+    private boolean shouldExit(String input) {
+        if (input.equalsIgnoreCase("bye")) {
+            ui.showGoodbye();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Processes a user command by parsing it and dispatching it
+     * to the appropriate command handler.
+     *
+     * @param input the raw user input
+     * @throws HaruException if the command is invalid
+     */
+    private void processCommand(String input) throws HaruException {
+        String command = Parser.getCommand(input);
+        String arg = Parser.getArguments(input);
+
+        switch (command) {
+        case "list":
+            handleListCommand();
+            break;
+        case "todo":
+            handleTodoCommand(arg);
+            break;
+        case "deadline":
+            handleDeadlineCommand(arg);
+            break;
+        case "event":
+            handleEventCommand(arg);
+            break;
+        case "mark":
+            handleMarkCommand(arg);
+            break;
+        case "unmark":
+            handleUnmarkCommand(arg);
+            break;
+        case "delete":
+            handleDeleteCommand(arg);
+            break;
+        case "find":
+            handleFindCommand(arg);
+            break;
+        default:
+            throw new HaruException("Please specify the type of your task");
+        }
+    }
+
+    private void handleListCommand() {
+        if (taskList.size() == 0) {
+            ui.showMessage("    No task found :(");
+        } else {
+            String taskListString = buildTaskListString();
+            ui.showMessage(taskListString);
+        }
+    }
+
+    private String buildTaskListString() {
+        StringBuilder sb = new StringBuilder("    Here are the tasks in your list:\n");
+        for (int i = 0; i < taskList.size(); i++) {
+            sb.append("    ")
+                    .append(i + 1)
+                    .append(". ")
+                    .append(taskList.getTasks().get(i))
+                    .append("\n");
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Handles the "todo" command by creating a ToDo task and adding it to the list.
+     *
+     * @param arg the description of the todo task
+     * @throws HaruException if the description is empty
+     */
+    private void handleTodoCommand(String arg) throws HaruException {
+        validateNonEmptyArgument(arg, "Please specify the name of the task");
+
+        Task todo = new ToDo(arg, Type.TODO);
+        addTaskAndSave(todo);
+        showTaskAddedMessage(todo);
+    }
+
+    /**
+     * Handles the "deadline" command by creating a Deadline task and adding it to the list.
+     *
+     * @param arg the description and deadline of the task
+     * @throws HaruException if the date format is invalid
+     */
+    private void handleDeadlineCommand(String arg) throws HaruException {
+        String[] deadlineParts = Parser.parseDeadline(arg);
+        Task deadlineTask = createDeadlineTask(deadlineParts);
+        addTaskAndSave(deadlineTask);
+        showTaskAddedMessage(deadlineTask);
+    }
+
+    /**
+     * Creates a Deadline task from parsed parts.
+     *
+     * @param deadlineParts the array containing description and date
+     * @return the created Deadline task
+     * @throws HaruException if the date format is invalid
+     */
+    private Task createDeadlineTask(String[] deadlineParts) throws HaruException {
+        try {
+            return new Deadline(deadlineParts[0], deadlineParts[1], Type.DEADLINE);
+        } catch (DateTimeParseException e) {
+            throw new HaruException("    Invalid date format! Use yyyy-mm-dd, e.g., 2019-12-02");
+        }
+    }
+
+    /**
+     * Handles the "event" command by creating an Event task and adding it to the list.
+     *
+     * @param arg the description, start, and end times of the event
+     */
+    private void handleEventCommand(String arg) throws HaruException {
+        String[] eventParts = Parser.parseEvent(arg);
+        Task eventTask = new Event(eventParts[0], eventParts[2], eventParts[1], Type.EVENT);
+        addTaskAndSave(eventTask);
+        showTaskAddedMessage(eventTask);
+    }
+
+    /**
+     * Handles the "mark" command by marking a task as done.
+     *
+     * @param arg the index of the task to mark
+     * @throws HaruException if the task index is invalid
+     */
+    private void handleMarkCommand(String arg) throws HaruException {
+        int index = parseTaskIndex(arg);
+        taskList.mark(index);
+        storage.saveTasks(taskList.getTasks());
+        ui.showMessage("    Nice! I've marked this task as done:\n        "
+                + taskList.getTasks().get(index));
+    }
+
+    /**
+     * Handles the "unmark" command by marking a task as not done.
+     *
+     * @param arg the index of the task to unmark
+     * @throws HaruException if the task index is invalid
+     */
+    private void handleUnmarkCommand(String arg) throws HaruException {
+        int index = parseTaskIndex(arg);
+        taskList.unmark(index);
+        storage.saveTasks(taskList.getTasks());
+        ui.showMessage("    OK, I've unmarked this task as not done yet:\n        "
+                + taskList.getTasks().get(index));
+    }
+
+    /**
+     * Handles the "delete" command by removing a task from the list.
+     *
+     * @param arg the index of the task to delete
+     * @throws HaruException if the task index is invalid
+     */
+    private void handleDeleteCommand(String arg) throws HaruException {
+        int index = parseTaskIndex(arg);
+        Task removed = taskList.remove(index);
+        storage.saveTasks(taskList.getTasks());
+        ui.showMessage("    Noted. I've removed this task:\n        " + removed);
+    }
+
+    /**
+     * Handles the "find" command by searching tasks containing a keyword.
+     *
+     * @param arg the keyword to search for
+     * @throws HaruException if the keyword is empty
+     */
+    private void handleFindCommand(String arg) throws HaruException {
+        validateNonEmptyArgument(arg, "Please specify what you are trying to find");
+
+        TaskList result = taskList.find(arg);
+        if (result.size() == 0) {
+            ui.showMessage("    No task found :(");
+        } else {
+            String foundTasksString = buildFoundTasksString(result);
+            ui.showMessage(foundTasksString);
+        }
+    }
+
+    private String buildFoundTasksString(TaskList result) {
+        StringBuilder sb = new StringBuilder("    Here are the matching tasks in your list:\n");
+        for (int i = 0; i < result.size(); i++) {
+            sb.append("    ")
+                    .append(i + 1)
+                    .append(". ")
+                    .append(result.getTasks().get(i))
+                    .append("\n");
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Adds a task to the task list and saves the updated list to storage.
+     *
+     * @param task the task to add
+     */
+    private void addTaskAndSave(Task task) {
+        taskList.add(task);
+        storage.saveTasks(taskList.getTasks());
+    }
+
+    /**
+     * Shows a message to the user confirming that a task has been added.
+     *
+     * @param task the task that was added
+     */
+    private void showTaskAddedMessage(Task task) {
+        ui.showMessage("    Got it. I've added this task:\n        " + task
+                + "\n    Now you have " + taskList.size() + " tasks in the list.");
+    }
+
+    /**
+     * Parses a task index from a string argument.
+     *
+     * @param arg the string containing the task index
+     * @return the zero-based task index
+     * @throws HaruException if the input is not a valid integer
+     */
+    private int parseTaskIndex(String arg) throws HaruException {
+        try {
+            return Integer.parseInt(arg) - 1;
+        } catch (NumberFormatException e) {
+            throw new HaruException("Please provide a valid task number");
+        }
+    }
+
+    /**
+     * Validates that a command argument is not empty.
+     *
+     * @param arg the argument to validate
+     * @param errorMessage the error message to throw if empty
+     * @throws HaruException if the argument is empty
+     */
+    private void validateNonEmptyArgument(String arg, String errorMessage) throws HaruException {
+        if (arg.isEmpty()) {
+            throw new HaruException(errorMessage);
+        }
     }
 
     /**
@@ -128,8 +305,9 @@ public class Haru {
      * @return the processed result as a string
      */
     public String getResponse(String input) {
-        Storage storage = new Storage("./data/duke.txt");
-        TaskList taskList = new TaskList(new ArrayList<>(storage.loadTasks()));
+        Storage responseStorage = new Storage("./data/haru.txt");
+        TaskList responseTaskList = new TaskList(new ArrayList<>(responseStorage.loadTasks()));
+
         try {
             if (input.equalsIgnoreCase("bye")) {
                 return "Goodbye! Hope to see you again soon.";
@@ -138,86 +316,186 @@ public class Haru {
             String command = Parser.getCommand(input);
             String arg = Parser.getArguments(input);
 
-            switch (command) {
-            case "list":
-                if (taskList.size() == 0) {
-                    return "No task found :(";
-                } else {
-                    StringBuilder sb = new StringBuilder("Here are the tasks in your list:\n");
-                    for (int i = 0; i < taskList.size(); i++) {
-                        sb.append(i + 1).append(". ").append(taskList.getTasks().get(i)).append("\n");
-                    }
-                    return sb.toString();
-                }
-
-            case "todo":
-                if (arg.isEmpty()) throw new HaruException("Please specify the name of the task");
-                Task todo = new ToDo(arg, Type.TODO);
-                taskList.add(todo);
-                storage.saveTasks(taskList.getTasks());
-                return "Got it. I've added this task:\n  " + todo
-                        + "\nNow you have " + taskList.size() + " tasks in the list.";
-
-            case "deadline":
-                String[] deadlineParts = Parser.parseDeadline(arg);
-                Task deadlineTask;
-                try {
-                    deadlineTask = new Deadline(deadlineParts[0], deadlineParts[1], Type.DEADLINE);
-                } catch (DateTimeParseException e) {
-                    throw new HaruException("Invalid date format! Use yyyy-mm-dd, e.g., 2019-12-02");
-                }
-                taskList.add(deadlineTask);
-                storage.saveTasks(taskList.getTasks());
-                return "Got it. I've added this task:\n  " + deadlineTask
-                        + "\nNow you have " + taskList.size() + " tasks in the list.";
-
-            case "event":
-                String[] eventParts = Parser.parseEvent(arg);
-                Task eventTask = new Event(eventParts[0], eventParts[2], eventParts[1], Type.EVENT);
-                taskList.add(eventTask);
-                storage.saveTasks(taskList.getTasks());
-                return "Got it. I've added this task:\n  " + eventTask
-                        + "\nNow you have " + taskList.size() + " tasks in the list.";
-
-            case "mark":
-                int markIndex = Integer.parseInt(arg) - 1;
-                taskList.mark(markIndex);
-                storage.saveTasks(taskList.getTasks());
-                return "Nice! I've marked this task as done:\n  "
-                        + taskList.getTasks().get(markIndex);
-
-            case "unmark":
-                int unmarkIndex = Integer.parseInt(arg) - 1;
-                taskList.unmark(unmarkIndex);
-                storage.saveTasks(taskList.getTasks());
-                return "OK, I've unmarked this task as not done yet:\n  "
-                        + taskList.getTasks().get(unmarkIndex);
-
-            case "delete":
-                int delIndex = Integer.parseInt(arg) - 1;
-                Task removed = taskList.remove(delIndex);
-                storage.saveTasks(taskList.getTasks());
-                return "Noted. I've removed this task:\n  " + removed;
-
-            case "find":
-                if (arg.isEmpty()) throw new HaruException("Please specify what you are trying to find");
-                TaskList result = taskList.find(arg);
-                if (result.size() == 0) {
-                    return "No task found :(";
-                } else {
-                    StringBuilder sb = new StringBuilder("Here are the matching tasks in your list:\n");
-                    for (int i = 0; i < result.size(); i++) {
-                        sb.append(i + 1).append(". ").append(result.getTasks().get(i)).append("\n");
-                    }
-                    return sb.toString();
-                }
-
-            default:
-                throw new HaruException("Please specify the type of your task");
-            }
+            return processResponseCommand(command, arg, responseTaskList, responseStorage);
 
         } catch (HaruException e) {
             return e.getMessage();
         }
+    }
+
+    /**
+     * Processes a user command in the context of response generation.
+     *
+     * @param command the command type
+     * @param arg the command arguments
+     * @param taskList the task list to operate on
+     * @param storage the storage instance to persist changes
+     * @return the response string
+     * @throws HaruException if the command is invalid
+     */
+    private String processResponseCommand(String command, String arg,
+                                          TaskList taskList, Storage storage) throws HaruException {
+        return switch (command) {
+            case "list" -> handleListResponse(taskList);
+            case "todo" -> handleTodoResponse(arg, taskList, storage);
+            case "deadline" -> handleDeadlineResponse(arg, taskList, storage);
+            case "event" -> handleEventResponse(arg, taskList, storage);
+            case "mark" -> handleMarkResponse(arg, taskList, storage);
+            case "unmark" -> handleUnmarkResponse(arg, taskList, storage);
+            case "delete" -> handleDeleteResponse(arg, taskList, storage);
+            case "find" -> handleFindResponse(arg, taskList);
+            default -> throw new HaruException("Please specify the type of your task");
+        };
+    }
+
+    /**
+     * Handles the "list" command for generating a response string.
+     *
+     * @param taskList the task list
+     * @return formatted string of all tasks
+     */
+    private String handleListResponse(TaskList taskList) {
+        if (taskList.size() == 0) {
+            return "No task found :(";
+        }
+
+        StringBuilder sb = new StringBuilder("Here are the tasks in your list:\n");
+        for (int i = 0; i < taskList.size(); i++) {
+            sb.append(i + 1).append(". ").append(taskList.getTasks().get(i)).append("\n");
+        }
+        return sb.toString();
+    }
+
+    /**
+     * Handles the "todo" command for generating a response string.
+     *
+     * @param arg task description
+     * @param taskList the task list
+     * @param storage storage instance
+     * @return response string
+     * @throws HaruException if argument is empty
+     */
+    private String handleTodoResponse(String arg, TaskList taskList, Storage storage) throws HaruException {
+        validateNonEmptyArgument(arg, "Please specify the name of the task");
+
+        Task todo = new ToDo(arg, Type.TODO);
+        taskList.add(todo);
+        storage.saveTasks(taskList.getTasks());
+        return "Got it. I've added this task:\n  " + todo
+                + "\nNow you have " + taskList.size() + " tasks in the list.";
+    }
+
+    /**
+     * Handles the "deadline" command for generating a response string.
+     *
+     * @param arg task description and deadline
+     * @param taskList the task list
+     * @param storage storage instance
+     * @return response string
+     * @throws HaruException if date is invalid
+     */
+    private String handleDeadlineResponse(String arg, TaskList taskList, Storage storage) throws HaruException {
+        String[] deadlineParts = Parser.parseDeadline(arg);
+        Task deadlineTask = createDeadlineTaskForResponse(deadlineParts);
+        taskList.add(deadlineTask);
+        storage.saveTasks(taskList.getTasks());
+        return "Got it. I've added this task:\n  " + deadlineTask
+                + "\nNow you have " + taskList.size() + " tasks in the list.";
+    }
+
+    private Task createDeadlineTaskForResponse(String[] deadlineParts) throws HaruException {
+        try {
+            return new Deadline(deadlineParts[0], deadlineParts[1], Type.DEADLINE);
+        } catch (DateTimeParseException e) {
+            throw new HaruException("Invalid date format! Use yyyy-mm-dd, e.g., 2019-12-02");
+        }
+    }
+
+    /**
+     * Handles the "event" command for generating a response string.
+     *
+     * @param arg task description, start, and end times
+     * @param taskList the task list
+     * @param storage storage instance
+     * @return response string
+     */
+    private String handleEventResponse(String arg, TaskList taskList, Storage storage) throws HaruException {
+        String[] eventParts = Parser.parseEvent(arg);
+        Task eventTask = new Event(eventParts[0], eventParts[2], eventParts[1], Type.EVENT);
+        taskList.add(eventTask);
+        storage.saveTasks(taskList.getTasks());
+        return "Got it. I've added this task:\n  " + eventTask
+                + "\nNow you have " + taskList.size() + " tasks in the list.";
+    }
+
+    /**
+     * Handles the "mark" command for generating a response string.
+     *
+     * @param arg task index
+     * @param taskList the task list
+     * @param storage storage instance
+     * @return response string
+     * @throws HaruException if index is invalid
+     */
+    private String handleMarkResponse(String arg, TaskList taskList, Storage storage) throws HaruException {
+        int index = parseTaskIndex(arg);
+        taskList.mark(index);
+        storage.saveTasks(taskList.getTasks());
+        return "Nice! I've marked this task as done:\n  " + taskList.getTasks().get(index);
+    }
+
+    /**
+     * Handles the "unmark" command for generating a response string.
+     *
+     * @param arg task index
+     * @param taskList the task list
+     * @param storage storage instance
+     * @return response string
+     * @throws HaruException if index is invalid
+     */
+    private String handleUnmarkResponse(String arg, TaskList taskList, Storage storage) throws HaruException {
+        int index = parseTaskIndex(arg);
+        taskList.unmark(index);
+        storage.saveTasks(taskList.getTasks());
+        return "OK, I've unmarked this task as not done yet:\n  " + taskList.getTasks().get(index);
+    }
+
+    /**
+     * Handles the "delete" command for generating a response string.
+     *
+     * @param arg task index
+     * @param taskList the task list
+     * @param storage storage instance
+     * @return response string
+     * @throws HaruException if index is invalid
+     */
+    private String handleDeleteResponse(String arg, TaskList taskList, Storage storage) throws HaruException {
+        int index = parseTaskIndex(arg);
+        Task removed = taskList.remove(index);
+        storage.saveTasks(taskList.getTasks());
+        return "Noted. I've removed this task:\n  " + removed;
+    }
+
+    /**
+     * Handles the "find" command for generating a response string.
+     *
+     * @param arg keyword to search for
+     * @param taskList the task list
+     * @return formatted string of matching tasks
+     * @throws HaruException if keyword is empty
+     */
+    private String handleFindResponse(String arg, TaskList taskList) throws HaruException {
+        validateNonEmptyArgument(arg, "Please specify what you are trying to find");
+
+        TaskList result = taskList.find(arg);
+        if (result.size() == 0) {
+            return "No task found :(";
+        }
+
+        StringBuilder sb = new StringBuilder("Here are the matching tasks in your list:\n");
+        for (int i = 0; i < result.size(); i++) {
+            sb.append(i + 1).append(". ").append(result.getTasks().get(i)).append("\n");
+        }
+        return sb.toString();
     }
 }

@@ -67,30 +67,16 @@ public class Task {
         boolean isDone = parts[1].equals("1");
         String description = parts[2];
 
+        Task task;
         switch (type) {
-            case "T":
-                Task todo = new ToDo(description, Type.TODO);
-                if (isDone) {
-                    todo.mark();
-                }
-                return todo;
-            case "D":
-                String by = parts[3];
-                Task deadline = new Deadline(description, by, Type.DEADLINE);
-                if (isDone) {
-                    deadline.mark();
-                }
-                return deadline;
-            case "E":
-                String from = parts[3];
-                String to = parts[4];
-                Task event = new Event(description, from, to, Type.EVENT);
-                if (isDone) {
-                    event.mark();
-                }
-                return event;
-            default:
-                return null;
+        case "T" -> task = new ToDo(description, Type.TODO);
+        case "D" -> task = new Deadline(description, parts[3], Type.DEADLINE);
+        case "E" -> task = new Event(description, parts[3], parts[4], Type.EVENT);
+        default -> task = null;
         }
+
+        if (task != null && isDone) task.mark();
+        return task;
     }
+
 }
