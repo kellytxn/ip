@@ -8,6 +8,7 @@ import javafx.scene.layout.HBox;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.Node;
+import javafx.scene.layout.Region;
 
 /**
  * Represents a custom dialog box in a chat interface, containing a text label and an image (e.g., user or bot avatar).
@@ -26,14 +27,20 @@ public class DialogBox extends HBox {
      */
     public DialogBox(String s, Image i) {
         text = new Label(s);
-        displayPicture = new ImageView(i);
-
-        //Styling the dialog box
         text.setWrapText(true);
         text.setMaxWidth(180.0);
-        displayPicture.setFitWidth(100.0);
-        displayPicture.setFitHeight(100.0);
+
+        text.setStyle("-fx-background-color: lightblue; "
+                + "-fx-padding: 10; "
+                + "-fx-background-radius: 15; "
+                + "-fx-border-radius: 15;");
+
+        displayPicture = new ImageView(i);
+        displayPicture.setFitWidth(60.0);
+        displayPicture.setFitHeight(60.0);
+
         this.setAlignment(Pos.TOP_RIGHT);
+        this.setSpacing(10);
 
         this.getChildren().addAll(text, displayPicture);
     }

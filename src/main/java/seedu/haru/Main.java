@@ -92,15 +92,7 @@ public class Main extends Application {
         dialogContainer.heightProperty().addListener((observable) -> scrollPane.setVvalue(1.0));
 
         String introMessage =
-                "Hello! I’m Haru 🐶\n" +
-                        "Here are the things you can do:\n" +
-                        "• todo (name)\n" +
-                        "• event (name) /from ... /to ...\n" +
-                        "• deadline (name) /by ...\n" +
-                        "• list → show all tasks\n" +
-                        "• mark (task number)\n" +
-                        "• unmark (task number)" +
-                        "• delete (task number)";
+                "Hello! I’m Haru 🐶\n" + "How may I help you today?";
 
         dialogContainer.getChildren().add(
                 DialogBox.getHaruDialog(introMessage, haruImage)
