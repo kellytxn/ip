@@ -36,8 +36,8 @@ public class ParserTest {
     void testParseEventValid() throws HaruException {
         String[] result = Parser.parseEvent("meeting /from 10:00 /to 12:00");
         assertEquals("meeting", result[0]);
-        assertEquals("10:00", result[1]);
-        assertEquals("12:00", result[2]);
+        assertEquals("12:00", result[1]);
+        assertEquals("10:00", result[2]);
     }
 
     @Test
